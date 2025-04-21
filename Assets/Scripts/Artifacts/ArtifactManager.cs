@@ -1,6 +1,7 @@
 using benjohnson;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ArtifactManager : Singleton<ArtifactManager>
@@ -19,11 +20,30 @@ public class ArtifactManager : Singleton<ArtifactManager>
     /// <summary>
     /// Returns a random set of artifacts from undiscoveredArtifacts list
     /// </summary>
-    public List<A_Base> GetRandomArtifacts(int maxItems)
+    public A_Base[] GetRandomArtifacts(int maxItems)  //List<A_Base> GetRandomArtifacts(int maxItems)
     {
+        int itemCount = Mathf.Min(maxItems, undiscoveredArtifacts.Count);
+        // 0 to itemCount - 1
+        int[] itemNums = new int[itemCount];
+        for (int i = 0; i < itemCount; i++) { itemNums[i] = i; }
+
+        // We use an Array instead of a list since the size is fixed
+        A_Base[] selectedItems = new A_Base[itemCount];
+        // Partial Fisher-Yates shuffle for random selection
+        for (int i = 0; i < itemCount; i++)
+        {
+            int randomIndex = Random.Range(i, itemCount);
+            int temp = itemNums[i];
+            itemNums[i] = itemNums[randomIndex];
+            itemNums[randomIndex] = temp;
+            
+            selectedItems[i] = undiscoveredArtifacts[itemNums[i]];
+
+        }
+        /*
         List<A_Base> shuffledItems = new List<A_Base>(undiscoveredArtifacts);
 
-        // Shuffle
+        // Shuffle - Fisher-Yates
         for (int i = shuffledItems.Count - 1; i > 0; i--)
         {
             int randomIndex = Random.Range(0, i + 1);
@@ -33,9 +53,12 @@ public class ArtifactManager : Singleton<ArtifactManager>
         }
 
         // Select up to maxItems
-        List<A_Base> selectedItems = shuffledItems.GetRange(0, Mathf.Min(maxItems, shuffledItems.Count));
-
+        //List<A_Base> selectedItems = shuffledItems.GetRange(0, Mathf.Min(maxItems, shuffledItems.Count));
+        */
+        
         return selectedItems;
+
+        
     }
 
     protected override void Awake()

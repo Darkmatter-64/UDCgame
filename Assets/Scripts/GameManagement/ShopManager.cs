@@ -27,7 +27,8 @@ public class ShopManager : Singleton<ShopManager>
 
     void LoadShop()
     {
-        List<A_Base> artifacts = ArtifactManager.instance.GetRandomArtifacts(6);
+        // Use an Array instead since it's fixed length
+        A_Base[] artifacts = ArtifactManager.instance.GetRandomArtifacts(6);
         foreach (A_Base a in artifacts)
         {
             Instantiate(shopItemPrefab, transform).GetComponent<ShopItem>().Visualize(a);
