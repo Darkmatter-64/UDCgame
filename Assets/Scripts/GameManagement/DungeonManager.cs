@@ -2,6 +2,7 @@ using benjohnson;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class DungeonManager : Singleton<DungeonManager>
@@ -47,10 +48,12 @@ public class DungeonManager : Singleton<DungeonManager>
             return;
         }
 
+        Tree tree = new Tree();
+
         // Generate first room
-        CreateRoom(stage, 0, null);
+        CreateRoom(stage, 0, null, tree.root);
         // Iteratively generate layers
-        GenerateLayer(stage, 1);
+        GenerateLayer(stage, 1, tree);
         // Generate boss room
         GenerateBossRoom(stage);
 
@@ -97,7 +100,7 @@ public class DungeonManager : Singleton<DungeonManager>
     /// Iteratively generates dungeon layers by calling GenerateLayer(depth + 1)
     /// Stops when maxDepth is reached or no doors are left to be filled
     /// </summary>
-    void GenerateLayer(int stage, int depth)
+    void GenerateLayer(int stage, int depth, Tree tree)
     {
         // Stop when reached max depth or no doors to fill
         if (depth > gen.maxDepth || doorsToFill.Count <= 0) return;
@@ -108,17 +111,19 @@ public class DungeonManager : Singleton<DungeonManager>
             _doorsToFill.Add(doorsToFill[i]);
         doorsToFill.Clear();
 
+        List<Node> _nodes = tree.GetLayer(depth);
+
         // Create new room for all empty doors
         for (int i = 0; i < _doorsToFill.Count; i++)
         {
             Room _parentRoom = _doorsToFill[i].GetComponent<EC_Entity>().room;
-            Room _newRoom = CreateRoom(stage, depth, _parentRoom);
+            Room _newRoom = CreateRoom(stage, depth, _parentRoom, _nodes[i]);
             _doorsToFill[i].destination = _newRoom;
             _parentRoom.children.Add(_newRoom);
         }
 
         // Generate next layer
-        GenerateLayer(stage, depth + 1);
+        GenerateLayer(stage, depth + 1, tree);
     }
 
     /// <summary>
@@ -148,7 +153,7 @@ public class DungeonManager : Singleton<DungeonManager>
     /// <summary>
     /// Creates room at depth, fills with doors and entities, returns newly created room
     /// </summary>
-    Room CreateRoom(int _stage, int _depth, Room _parentRoom)
+    Room CreateRoom(int _stage, int _depth, Room _parentRoom, Node node)
     {
         Room _room = new Room(_depth, _parentRoom);
         rooms.Add(_room);
@@ -159,14 +164,21 @@ public class DungeonManager : Singleton<DungeonManager>
             EC_Entity _back = SpawnEntity(gen.backDoorPrefab, _room);
             _back.GetComponent<EC_Door>().destination = _parentRoom;
         }
+
+        int doorsCount = 0;
+        if (node.left != null) { doorsCount++; }
+        if (node.right != null) { doorsCount++; }
+
         // Spawn doors according to depth
-        for (int i = 0; i < gen.maxDoors; i++)
+        for (int i = 0; i < doorsCount; i++)
         {
-            if (Random.Range(0.0f, 1.0f) <= 1 - Mathf.Pow((float)_depth / (float)gen.maxDepth, gen.oddsPower))
-            {
-                EC_Entity _door = SpawnEntity(gen.doorPrefab, _room);
-                doorsToFill.Add(_door.GetComponent<EC_Door>());
-            }
+            EC_Entity _door = SpawnEntity(gen.doorPrefab, _room);
+            doorsToFill.Add(_door.GetComponent<EC_Door>());
+            //if  (Random.Range(0.0f, 1.0f) <= 1 - Mathf.Pow((float)_depth / (float)gen.maxDepth, gen.oddsPower))
+            //{
+            //    EC_Entity _door = SpawnEntity(gen.doorPrefab, _room);
+            //    doorsToFill.Add(_door.GetComponent<EC_Door>());
+            //}
         }
         // Add entities based on room depth
         if (_depth > 0)
@@ -260,5 +272,129 @@ public class DungeonManager : Singleton<DungeonManager>
         gridLayout.Arrange();
 
         Player.instance.Wallet.AddMoney(200);
+    }
+}
+
+
+
+
+class Node
+{
+    public int depth;
+    public Node parent;
+    public Node left;
+    public Node right;
+
+    public Node(int _depth)
+    {
+        depth = _depth;
+        parent = null;
+        left = null;
+        right = null;
+    }
+}
+
+class Tree
+{
+    public Node root;
+    int maxDepth = 3;
+    int oddsPower = 1;
+
+    public Tree()
+    {
+        root = new Node(0);
+        genTree(root);
+    }
+
+    public void genTree(Node node)
+    {
+        int _depth = node.depth;
+        if (_depth > 3) { return; }
+        for (int i = 0; i < 2; i++)
+        {
+            if (Random.Range(0.0f, 1.0f) <= 1 - Mathf.Pow((float)_depth / (float)maxDepth, oddsPower))
+            {
+                if (i == 0)
+                {
+                    node.left = new Node(_depth + 1);
+                    node.left.parent = node;
+                    genTree(node.left);
+                }
+                else
+                {
+                    node.right = new Node(_depth + 1);
+                    node.right.parent = node;
+                    genTree(node.right);
+                }
+            }
+        }
+        return;
+    }
+
+    public List<Node> GetLayer(int depth)
+    {
+        List<Node> layer = new List<Node>();
+        if (depth == 0)
+        {
+            layer.Add(root);
+            return layer;
+        }
+
+        if (depth == 1)
+        {
+            if (root.left != null)
+            {
+                layer.Add(root.left);
+            }
+            if (root.right != null)
+            {
+                layer.Add(root.right);
+            }
+            return layer;
+        }
+
+        // depth > 1
+        if (root.left != null)
+        {
+            layer.AddRange(GetLayer(depth, root.left));
+        }
+        if (root.right != null)
+        {
+            layer.AddRange(GetLayer(depth, root.right));
+        }
+
+
+        return layer;
+    }
+
+    public List<Node> GetLayer(int depth, Node node)
+    {
+        List<Node> layer = new List<Node>();
+        if (depth - 1 == node.depth)
+        {
+            if (node.left != null)
+            {
+                layer.Add(node.left);
+            }
+            if (node.right != null)
+            {
+                layer.Add(node.right);
+            }
+
+            return layer;
+        }
+
+        if (node.left != null)
+        {
+            layer.AddRange(GetLayer(depth, node.left));
+        }
+        if (node.right != null)
+        {
+            layer.AddRange(GetLayer(depth, node.right));
+        }
+
+
+
+        return layer;
     }
 }
