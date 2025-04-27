@@ -28,13 +28,14 @@ public class StatsLoader : MonoBehaviour
 
         stageCounter.SetText(PlayerStats.instance.stage.ToString(), 3);
         timeCounter.SetText(PlayerStats.instance.time.ToString(), 3);
-        enemiesDefeatedCounter.SetText(PlayerStats.instance.enemiesDefeated.ToString(), 3);
-        artifactsDiscoveredCounter.SetText(PlayerStats.instance.artifactsDiscovered.ToString(), 3);
-        artifactsTriggeredCounter.SetText(PlayerStats.instance.artifactsTriggered.ToString(), 3);
-        damageDealtCounter.SetText(PlayerStats.instance.damageDealt.ToString(), 3);
-        damageTakenCounter.SetText(PlayerStats.instance.damageTaken.ToString(), 3);
-        healthHealedCounter.SetText(PlayerStats.instance.healthHealed.ToString(), 3);
-        coinsCollectedCounter.SetText(PlayerStats.instance.coinsCollected.ToString(), 3);
+
+        enemiesDefeatedCounter.SetText(PlayerStats.instance.playerStatsDic["enemiesDefeated"].ToString(), 3);
+        artifactsDiscoveredCounter.SetText(PlayerStats.instance.playerStatsDic["artifactsDiscovered"].ToString(), 3);
+        artifactsTriggeredCounter.SetText(PlayerStats.instance.playerStatsDic["artifactsTriggered"].ToString(), 3);
+        damageDealtCounter.SetText(PlayerStats.instance.playerStatsDic["damageDealt"].ToString(), 3);
+        damageTakenCounter.SetText(PlayerStats.instance.playerStatsDic["damageTaken"].ToString(), 3);
+        healthHealedCounter.SetText(PlayerStats.instance.playerStatsDic["healthHealed"].ToString(), 3);
+        coinsCollectedCounter.SetText(PlayerStats.instance.playerStatsDic["coinsCollected"].ToString(), 3);
     }
 
     public void Quit()

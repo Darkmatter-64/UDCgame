@@ -24,7 +24,7 @@ public class PlayerWallet : MonoBehaviour
     {
         if (counter == null) return;
         counter.SetText(money.ToString(), 3);
-        if (ShopManager.instance != null )
+        if (ShopManager.instance != null)
             ShopManager.instance.ReloadPrices();
     }
 
@@ -34,7 +34,7 @@ public class PlayerWallet : MonoBehaviour
         if (value <= 0)
             return;
         money += value;
-        PlayerStats.instance.coinsCollected += value;
+        PlayerStats.instance.playerStatsDic["coinsCollected"] += value;
         if (Player.instance == null)
             return;
         UpdateCounter();

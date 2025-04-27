@@ -25,7 +25,7 @@ public class EC_Health : MonoBehaviour
 
     public void Damage(int value)
     {
-        PlayerStats.instance.damageDealt += value;
+        PlayerStats.instance.playerStatsDic["damageDealt"] += value;
         damageEvent.Invoke();
         DamagePopup.CreatePopup(transform.position, value);
         SoundManager.instance.PlaySound("Enemy Hurt");
@@ -58,7 +58,7 @@ public class EC_Health : MonoBehaviour
 
     public void Kill()
     {
-        PlayerStats.instance.enemiesDefeated++;
+        PlayerStats.instance.playerStatsDic["enemiesDefeated"]++;
         deathEvent.Invoke();
         ArtifactManager.instance.TriggerKillEnemy();
 

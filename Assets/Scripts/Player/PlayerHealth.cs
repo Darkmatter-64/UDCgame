@@ -21,7 +21,7 @@ public class PlayerHealth : MonoBehaviour
 
     public void Damage(int value)
     {
-        PlayerStats.instance.damageTaken++;
+        PlayerStats.instance.playerStatsDic["damageTaken"]++;
         ArtifactManager.instance.TriggerTakeDamage();
         SoundManager.instance.PlaySound("Player Hurt");
         DamagePopup.CreatePopup(transform.position, value);
@@ -52,7 +52,7 @@ public class PlayerHealth : MonoBehaviour
 
     public void Heal(int value)
     {
-        PlayerStats.instance.healthHealed += value;
+        PlayerStats.instance.playerStatsDic["healthHealed"] += value;
         SoundManager.instance.PlaySound("Heal");
         DamagePopup.CreatePopup(transform.position, value, true);
         currentHealth += value;

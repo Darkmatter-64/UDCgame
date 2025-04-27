@@ -36,7 +36,7 @@ public class ArtifactManager : Singleton<ArtifactManager>
             int temp = itemNums[i];
             itemNums[i] = itemNums[randomIndex];
             itemNums[randomIndex] = temp;
-            
+
             selectedItems[i] = undiscoveredArtifacts[itemNums[i]];
 
         }
@@ -55,10 +55,10 @@ public class ArtifactManager : Singleton<ArtifactManager>
         // Select up to maxItems
         //List<A_Base> selectedItems = shuffledItems.GetRange(0, Mathf.Min(maxItems, shuffledItems.Count));
         */
-        
+
         return selectedItems;
 
-        
+
     }
 
     protected override void Awake()
@@ -94,7 +94,7 @@ public class ArtifactManager : Singleton<ArtifactManager>
         Artifact _a = new Artifact(artifact, Instantiate(visualizerGO, transform.position + new Vector3(artifacts.Count * 2.25f, 0), Quaternion.identity, transform).GetComponent<ArtifactVisualizer>());
         artifacts.Add(_a);
         undiscoveredArtifacts.Remove(artifact);
-        PlayerStats.instance.artifactsDiscovered++;
+        PlayerStats.instance.playerStatsDic["artifactsDiscovered"]++;
 
         // Trigger pickup
         artifact.OnPickup();
@@ -126,7 +126,7 @@ public class ArtifactManager : Singleton<ArtifactManager>
         {
             artifact.Trigger();
             visualizer.Trigger();
-            PlayerStats.instance.artifactsTriggered++;
+            PlayerStats.instance.playerStatsDic["artifactsTriggered"]++;
         }
     }
 
